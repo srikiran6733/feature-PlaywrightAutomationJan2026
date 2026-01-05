@@ -1,12 +1,16 @@
-import{test,expect}from"@playwright/test";
+import { test, expect } from "@playwright/test";
 
-test.describe('Handling Multi Selection Dropdown',()=>{
-    test('Handling the multi selection dropdown',async({page})=>{
+test.describe('Handling Multi Selection Dropdown', () => {
+    test('Handling the multi selection dropdown', async ({ page }) => {
 
         await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
 
         const usernameInput = await page.locator("input[name='username']");
         const passwordInput = await page.locator("input[name='password']");
+
+        const orangeHRMLogo = await page.locator("//img[@alt='company-branding']");
+        await page.waitForSelector(orangeHRMLogo);
+        await expect(orangeHRMLogo).toBeVisible();
 
         await expect(usernameInput).toBeVisible();
         await usernameInput.fill('Admin');
@@ -34,16 +38,25 @@ test.describe('Handling Multi Selection Dropdown',()=>{
         await expect(PIMHeaderText).toBeVisible();
         await expect(PIMHeaderText).toHaveText('PIM');
 
-        const employeeStatusDropdownMenuIcon = await page.locator("div[@class='oxd-form-row']//div[3]//i");
+        const employeeStatusDropdownMenuIcon = await page.locator("//div[@class='oxd-form-row']//div[3]//i");
 
         const employeeStatusDropdownOptions = await page.locator("//div[@role='listbox']/div/span");
-        await expect(employeeStatusDropdownMenuIcon).toBeVisible();
         await employeeStatusDropdownMenuIcon.click();
         await page.waitForTimeout(2000);
-        employeeStatusDropdownOptions.filter({hasText:'Full-Time Contract'});
+        await employeeStatusDropdownOptions.filter({ hasText: 'Full-Time Contract' });
         await employeeStatusDropdownOptions.nth(3).click();
 
         await page.waitForTimeout(5000);
+
+        /* const includeDropdownMenuIcon = await page.locator("//div[@class='oxd-form-row']//div[4]//i");
+         const includeDropdownOptions = await page.locator("//div[@role='listbox']/div/span");
+         await includeDropdownMenuIcon.click();
+         await page.waitForTimeout(2000);
+         await includeDropdownOptions.filter({ hasText: 'Current and Past Employees' });
+         await includeDropdownOptions.nth(2).click();
+ 
+         await page.waitForTimeout(5000);
+ */
 
     });
 });
