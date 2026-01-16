@@ -23,7 +23,15 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  //reporter: 'json',
+  reporter: [
+    ['list'],
+    ['line'],
+    ['dot'],
+    ['junit', {  outputFile: 'test1-results.xml' }],
+    ['json', {  outputFile: 'results.json' }],
+    ['allure-playwright',{outputFolder: 'my-test-allure'}]
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
@@ -33,7 +41,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video:'retain-on-failure',
-    timeOut: '1000',
+    timeOut: '3000',
     //Configure projects for major browsers
     projects: [
 
@@ -55,12 +63,16 @@ export default defineConfig({
         use: {
           ...devices['pixel 5']
         },
+        viewport: { width: 1920, height: 1080 },
       },
       {
         name: 'Mobile Safari',
         use: {
           ...devices['iphone 12']
         },
+        // It is important to define the `viewport` property after destructuring `devices`,
+        // since devices also define the `viewport` for that device.
+        viewport: { width: 1920, height: 1080 },
       },
     ],
 },
