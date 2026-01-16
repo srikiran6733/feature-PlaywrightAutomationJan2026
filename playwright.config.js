@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -15,7 +15,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -23,7 +23,15 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  //reporter: 'json',
+  reporter: [
+    ['list'],
+    ['line'],
+    ['dot'],
+    ['junit', {  outputFile: 'test1-results.xml' }],
+    ['json', {  outputFile: 'results.json' }],
+    ['allure-playwright',{outputFolder: 'my-test-allure'}]
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
@@ -31,9 +39,43 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    /* Allow selecting browser via CLI `--browser` or env var `BROWSER` */
-    browserName: (process.env.BROWSER && ['chromium', 'firefox', 'webkit'].includes(process.env.BROWSER.toLowerCase())) ? process.env.BROWSER.toLowerCase() : undefined,
-  },
+    screenshot: 'only-on-failure',
+    video:'retain-on-failure',
+    timeOut: '3000',
+    //Configure projects for major browsers
+    projects: [
+
+      {
+        name: 'chromium',
+        use: { ...devices['Desktop Chrome'] },
+      },
+      {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+      },
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+      },
+      //Test againest mobile viewports
+      {
+        name: 'Mobile Chrome',
+        use: {
+          ...devices['pixel 5']
+        },
+        viewport: { width: 1920, height: 1080 },
+      },
+      {
+        name: 'Mobile Safari',
+        use: {
+          ...devices['iphone 12']
+        },
+        // It is important to define the `viewport` property after destructuring `devices`,
+        // since devices also define the `viewport` for that device.
+        viewport: { width: 1920, height: 1080 },
+      },
+    ],
+},
 
   /* Note: removed explicit `projects` so `--browser` CLI works;
      to run multiple browsers again, re-add `projects` as needed. */
